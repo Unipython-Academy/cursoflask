@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block contenido %}
+<table>
+    <tr valign="top">
+        <td><img class="rounded-circle mr-2" src="{{ usuario.imagen_perfil(128) }}"></td> <!-- recordar que usuario es la consulta que hicimos con la clase Usuario a la base de datos y es por eso podemos usar su método image_perfil() -->
+        <td>
+            <h1>Usuario: {{ usuario.username }}</h1>
+            {% if usuario.sobre_mi %}<p>{{ usuario.sobre_mi }}</p>{% endif %}
+            {% if usuario.ultima_sesion %}<p>Ultima vez activo: {{ moment(usuario.ultima_sesion).format('DD [de] MMMM [del] YYYY [a las] h:mm a') }}</p>{% endif %}
+            {% if usuario == current_user %} <p><a href="{{ url_for('editar_perfil') }}">Editar perfil</a></p>
+            {% elif not current_user.siguiendo(usuario) %}
+            <p><a href="{{ url_for('seguir', username=usuario.username) }}">Seguir</a></p>
+            {% else %}
+            <p><a href="{{ url_for('dejar_seguir', username=usuario.username) }}">Dejar de seguir</a></p>
+            {% endif %}
+        </td>
+    </tr>
+</table>
+<hr>
+{% for post in posts %}
+    {% include '$post.html' %}
+{% endfor %}
+{% if pagina_ant %}
+<a href="{{ pagina_ant }}">Página anterior</a>
+{% endif %}
+{% if pagina_sig %}
+<a href="{{ pagina_sig }}">Página siguiente</a>
+{% endif %}
+{% endblock %}
+

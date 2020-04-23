@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+
+{% block contenido %}
+    <h1>Ha ocurrido un error inesperado</h1>
+    <p>El administrador del sitio ha sido notificado, te pedimos disculpas por las molestias ocasionadas</p>
+    <p><a href="{{ url_for('index') }}">Ir atrás</a></p>
+{% endblock %}

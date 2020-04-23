@@ -1,0 +1,21 @@
+{% for post in posts %}
+<table class="table table-hover">
+    <tr>
+        <td width="70px">
+            <a href="{{ url_for('perfil_usuario', username=post.autor.username) }}">
+                <img class="rounded-circle" src="{{ post.autor.imagen_perfil(70) }}" />
+            </a>
+        </td>
+        <td>
+            <a href="{{ url_for('perfil_usuario', username=post.autor.username) }}">
+                {{ post.autor.username }}
+            </a>
+            dijo {{ moment(post.timestamp).fromNow() }}:
+            <br>
+            <p class="mt-2">{{ post.cuerpo }}</p>
+            <img class="img-fluid mt-1" style="width: 300px; border-radius: 1rem;"
+                src="{% if post.post_imagen %} {{ post.post_imagen }} {% else %}  {% endif %}" alt="">
+        </td>
+    </tr>
+</table>
+{% endfor %}

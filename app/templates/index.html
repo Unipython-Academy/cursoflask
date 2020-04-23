@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block contenido %}
+<div class="container-fluid" style="background-color: #dedeee;">
+    <h1 class="pt-4">Hola, {{ current_user.username }}!</h1>
+    {% if form %}
+    <form id="form-file" action="" enctype="multipart/form-data" method="post">
+        {{ form.hidden_tag() }}
+        <div class="form-group mb-0">
+            {{ form.post.label }}<br>
+            {{ form.post(cols=32, rows=4, class="form-control") }}
+            {% for error in form.post.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </div>
+        <div class="form-group d-none">
+            {{ form.imagen(class="form-control-file") }}
+        </div>
+        <div class="form-group">
+            <input id="input-html" class="form-control-file d-inline mt-3" style="width: 30px;" type="image"
+                src="../static/icons/picture.png">
+            <p id="p-imagen" style="margin-left: 2.2rem;
+            margin-top: -1.65rem;">Adjuntar imagen al post</p>
+        </div>
+        {{ form.submit(class="btn btn-primary btn-sm", id="ajax-button") }}
+    </form>
+    {% endif %}
+    <div id="post-contenido">
+        {% include '$post.html' %}
+    </div>
+    <nav aria-label="...">
+        <ul class="pagination pagination-md">
+            {% if pagina_ant %}
+            <li class="page-item">
+                <a class="page-link" href="{{ pagina_ant }}">Página anterior</a>
+            </li>
+            {% endif %}
+            {% if pagina_sig %}
+            <li class="page-item">
+                <a class="page-link" href="{{ pagina_sig }}">Página siguiente</a>
+                {% endif %}
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<div class="toast" id="toastEnviando" style="position: absolute; top: 7%; right: 0;">
+    <div class="toast-header">
+        <strong class="mr-auto">Enviando post...</strong>
+        <small id="toast-tiempo"></small>
+        <button type="button" class="ml-2 mb-1 close" data-dismiss="toast">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="toast-body">
+        <div>Estamos enviado tu post un momento por favor.</div>
+    </div>
+</div>
+
+<div class="toast" id="toastEnviado" style="position: absolute; top: 7%; right: 0;">
+    <div class="toast-header">
+        <strong class="mr-auto">Post enviado.</strong>
+        <small id="toast-tiempo2"></small>
+        <button type="button" class="ml-2 mb-1 close" data-dismiss="toast">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="toast-body">
+        <div>Gracias por contarle algo al mundo.</div>
+    </div>
+</div>
+
+{% endblock %}

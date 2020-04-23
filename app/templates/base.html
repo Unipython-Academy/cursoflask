@@ -1,0 +1,177 @@
+<html>
+
+<head>
+    {% if titulo %}
+    <title>{{ titulo }} - Blog</title>
+    {% else %}
+    <title>Blog</title>
+    {% endif %}
+    <!-- Bootstrap CDN CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-2">
+        <a class="navbar-brand" href="#">Blog</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="{{ url_for('index') }}">Inicio</a>
+                </li>
+                {% if current_user.is_anonymous %}
+
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('explorar') }}">Explorar</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ml-auto">
+                {% if current_user.is_anonymous %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link"
+                        href="{{ url_for('perfil_usuario', username=current_user.username) }}">Perfil</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('logout') }}">Cerrar sesión</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+    <div class="container-fluid mt-3">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-primary" role="alert">
+            <span>{{ message }}</span>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+        {% block contenido %}
+        {% endblock %}
+    </div>
+
+    <!-- Bootstrap CDN JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"
+        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        crossorigin="anonymous"></script>
+    <script>
+        /* Traducir Moment JS */
+        function uniPython_lang() {
+            moment.lang('es', {
+                months: 'Enero_Febrero_Marzo_Abril_Mayo_Junio_Julio_Agosto_Septiembre_Octubre_Noviembre_Diciembre'.split('_'),
+                monthsShort: 'En._Feb._Mar_Abr._May_Jun_Jul._Ago_Sept._Oct._Nov._Dec.'.split('_'),
+                weekdays: 'Domingo_Lunes_Martes_Miercoles_Jueves_Viernes_Sabado'.split('_'),
+                weekdaysShort: 'Dom._Lun._Mar._Mier._Jue._Vier._Sab.'.split('_'),
+                weekdaysMin: 'Do_Lu_Ma_Mi_Ju_Vi_Sa'.split('_')
+            });
+        }
+
+        $(document).ready(function () {
+            uniPython_lang();
+        })
+        /* Fin traducción Moment JS */
+
+        /* Input para la imagen del post */
+        $(document).ready(function () {
+            $('#input-html').click(function (event) {
+                event.preventDefault();
+                $('#imagen').click()
+                $('#imagen').change(function () {
+                    var $nombreArchivo = $('#imagen').val()
+                    var $nombreSplit = $nombreArchivo.split('\\')
+                    $('#p-imagen').text($nombreSplit[2])
+
+                })
+            })
+            /* Fin input para la imagen del post */
+        })
+
+        /* Ajax */
+        $(document).ready(function () {
+            $('#form-file').submit(function (event) {
+                event.preventDefault();
+                const data = new FormData($('#form-file')[0])
+                $.ajax({
+                    url: "/obtener_post",
+                    type: "POST",
+                    data: data,
+                    processData: false,
+                    contentType: false,
+                    beforeSend: function () {
+                        $('#toastEnviando').toast({
+                            delay: 1000
+                        });
+                        $('#toastEnviando').toast('show')
+                        $('#toast-tiempo').text(moment.utc().fromNow());
+                    },
+                    statusCode: {
+                        404: function (event) {
+                            console.log('La URL solicitada no existe, solicitud no enviada.')
+                        },
+                        200: function () {
+                            console.log('URL encontrada, solicitud enviada.')
+                        },
+                        500: function () {
+                            console.log('Error interno del servidor, solicitud no enviada.')
+                        }
+                    },
+                    success: function (textStatus) {
+                        if (textStatus == 'Success') {
+                            $('#toastEnviado').toast({
+                                delay: 5000
+                            });
+                            $('#toastEnviado').toast('show')
+                            $('#toast-tiempo2').text(moment.utc().fromNow());
+                            // Solicitud ajax para traer los posts y mostrarlos luego de enviar un post.
+                            $.ajax({
+                                url: "/ajax_posts",
+                                type: "POST",
+                                beforeSend: function () {
+                                    console.log('Cargando contenido')
+                                },
+                                success: function (data) {
+                                    setTimeout(function () {
+                                        $('#post-contenido').html(data);
+                                        $('.post-tiempo').text(moment.utc().fromNow())
+                                    }, 3000)
+                                }
+                            });
+                        }
+                        else {
+                            console.log('No es posible traer los posts')
+                        }
+                        setTimeout(function () {
+                            $('#post').val("");
+                            $('#imagen').val("");
+                            $('#p-imagen').text('Adjuntar imagen al post')
+                        }, 2000)
+                    }
+                })
+            })
+        })
+    </script>
+    {{ moment.include_moment() }}
+</body>
+
+</html>

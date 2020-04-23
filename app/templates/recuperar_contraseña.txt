@@ -1,0 +1,11 @@
+Querido {{ usuario.username }},
+
+Para recuperar tu contraseña haz click en el siguiente enlace:
+
+{{ url_for('resetear_contraseña', token=token, _external=True) }}
+
+Si no has sido tú el que solicitó la recuperación de contraseña por favor ignore este mensaje.
+
+Sinceramente,
+
+Hebert P, Desarrollador del blog.
